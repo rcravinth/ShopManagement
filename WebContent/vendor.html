@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="ISO-8859-1">
+<title>STOCK</title>
+</head>
+
+<style>
+	#button{
+     line-height: 20px;
+     width: 80px;
+     font-size: 11pt;
+     font-family: tahoma;
+     margin-top: 5px;
+     margin-right: 70px;
+     position:absolute;
+     top:0;
+     right:0;}
+</style>
+
+<body>
+	<button type="button" id="button" onclick ="exit()">Exit</button><br><br>
+	<script>
+			function exit()
+			{
+				window.location.replace("admin.html");
+			}
+	</script>
+</body>
+
+<style>
+	table,th,td {
+  	border : 1px solid black;
+  	border-collapse: collapse;
+	}
+	th,td {
+  	padding: 5px;
+	}
+</style>
+
+<body>
+	<div id = "Item">
+		<form>
+			VendorName &nbsp; 
+			<input type = "text" name = "vendorname" onfocus="this.value=''" id ="vendorName" required /><br/><br/>
+			<button type="button" onclick="vendorList()">Show Vendor List</button>&nbsp;&nbsp;&nbsp;
+			<input type = "button" value = "AddVendor" onclick = "addVendor()"/><br><br>
+		</form>
+		
+		<div id="msg"></div>
+		<table id="show"></table>
+		
+		<script>
+			function addVendor()
+			{
+				var xhr = new XMLHttpRequest();
+				var OrgaId = localStorage.getItem("Orga_Id");
+				fn = document.getElementById('vendorName').value;
+				xhr.onreadystatechange = function(){
+					if(this.readyState==4)
+					{
+						document.getElementById("a").innerHTML ="";
+						document.getElementById("msg1").innerHTML ="";
+						document.getElementById("msg2").innerHTML ="";
+						item(this);
+					}
+				};
+				xhr.open("POST","/ShopManagement/shop/user/addvendor/"+fn+"/"+OrgaId,true);
+				xhr.send();
+			}
+			function item(req)
+			{
+				var i;
+				var xmlDoc = req.responseXML;
+				var x = xmlDoc.getElementsByTagName("returnResponse");
+				for(i=0; i<x.length;i++)
+				{
+					var res= x[i].getElementsByTagName("res")[0].childNodes[0].nodeValue;
+				}
+				if(res=="already")
+				{
+					document.getElementById("msg").innerHTML = "Already register this Vendor";
+				}
+				else if(res=="success")
+				{
+					document.getElementById("msg").innerHTML = "Add vendor Successfully";
+				}
+			}
+			function vendorList()
+			{
+				var xhr = new XMLHttpRequest();
+				var OrgaId = localStorage.getItem("Orga_Id");
+				xhr.onreadystatechange = function(){
+					if(this.readyState==4)
+					{
+						document.getElementById("a").innerHTML ="";
+						document.getElementById("msg").innerHTML = "";
+						list(this);
+					}
+				};
+				xhr.open("GET","/ShopManagement/shop/user/vendorlist/"+OrgaId,true);
+				xhr.send();
+			}
+			function list(req)
+			{
+				var i;
+				var xmlDoc = req.responseXML;
+				var table = "<tr><th>Vendor Name</th></tr>";
+				var x = xmlDoc.getElementsByTagName("vendor");
+				for(i=0; i<x.length;i++)
+				{
+					table += "<tr><td>"+
+							x[i].getElementsByTagName("vendorName")[0].childNodes[0].nodeValue+
+							"</td></tr>";
+				}
+				if(x.length==0)
+				{
+					document.getElementById("msg").innerHTML = "Please add vendor";
+				}
+				else
+				{
+					document.getElementById("show").innerHTML = table;
+				}
+			}
+		</script>
+	</div>
+	
+	<div>
+	<h3>Add Item Below Vendor</h3>
+	
+	<table>
+		<tr>
+			<td>Vendor Name</td>
+			<td>Item Name</td>
+		</tr>
+		<tr>
+			<td>
+				<input type="text" name="vendorname" id="vendorname" onfocus="this.value=''" placeholder="vendor name" required />
+			</td>
+			<td>
+				<input type="text" name="itemname" id="itemname" onfocus="this.value=''" placeholder="item name" required />
+			</td>
+		</tr>
+	</table><br>
+	
+	<input type="button" value="Update" onclick="vendoritem()"/>&nbsp;&nbsp;
+	<div id="msg1"></div>
+	
+	<script>
+			function vendoritem()
+			{
+				var xhr = new XMLHttpRequest();
+				var orgaId = localStorage.getItem("Orga_Id");
+				var fn = document.getElementById('vendorname').value;
+				var fn1 = document.getElementById('itemname').value;
+				xhr.onreadystatechange = function(){
+					if(this.readyState==4)
+					{
+						document.getElementById("a").innerHTML = "";
+						document.getElementById("msg").innerHTML = "";
+						document.getElementById("msg2").innerHTML = "";
+						update(this);
+					}
+				};
+				xhr.open("POST","/ShopManagement/shop/user/vendoritem/"+fn+"/"+fn1+"/"+orgaId,true);
+				xhr.send();
+			}
+			function update(xml)
+			{
+				var i;
+				var xmlDoc = xml.responseXML;
+				var x = xmlDoc.getElementsByTagName("returnResponse");
+				for(i=0; i<x.length;i++)
+				{
+					res = x[i].getElementsByTagName("res")[0].childNodes[0].nodeValue;
+				}
+				if(res=="success")
+				{
+					document.getElementById("msg1").innerHTML = "Successfully updated";
+				}
+				else if(res=="noitem")
+				{
+					document.getElementById("msg1").innerHTML = "Please register this item";
+				}
+				else if(res=="novendor")
+				{
+					document.getElementById("msg1").innerHTML = "Please register this vendor";
+				}
+			}
+	</script>
+	</div>
+	
+	<div>
+	<h3>Item of vendor</h3>
+	
+	<table>
+		<tr>
+			<td>Vendor Name</td>
+		</tr>
+		<tr>
+			<td>
+				<input type="text" name="vendorname" id="vendorname1" onfocus="this.value=''" placeholder="vendor name" required />
+			</td>
+		</tr>
+	</table><br>
+	
+	<input type="button" value="Show Item List" onclick="venItemList()"/>&nbsp;&nbsp;
+	<table id="msg2"></table>
+	<div id="a"></div>
+	
+	<script>
+			function venItemList()
+			{
+				var xhr = new XMLHttpRequest();
+				var orgaId = localStorage.getItem("Orga_Id");
+				var fn = document.getElementById('vendorname1').value;
+				
+				xhr.onreadystatechange = function(){
+					if(this.readyState==4)
+					{
+						document.getElementById("msg").innerHTML = "";
+						document.getElementById("msg1").innerHTML = "";
+						document.getElementById("a").innerHTML = "";
+						pass(this);
+					}
+				};
+				xhr.open("GET","/ShopManagement/shop/user/venitemlist/"+fn+"/"+orgaId,true);
+				xhr.send();
+			}
+			function pass(xml)
+			{
+				var i;
+				var xmlDoc = xml.responseXML;
+				var table = "<tr><th>Item List</th></tr>";
+				var x = xmlDoc.getElementsByTagName("vendor");
+				for(i=0; i<x.length;i++)
+				{
+					table += "<tr><td>"+x[i].getElementsByTagName("itemName")[0].childNodes[0].nodeValue+
+							 "</td></tr>";
+				}
+				if(x.length==0)
+				{
+					document.getElementById("a").innerHTML = "No item purchase from this vendor";
+				}
+				else
+				{
+					document.getElementById("msg2").innerHTML = table;
+				}
+			}
+	</script>
+	</div>
+</body>
+</html>

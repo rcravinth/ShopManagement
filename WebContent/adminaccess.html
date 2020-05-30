@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<title>STOCK</title>
+</head>
+<body>
+	<h3>Admin Access</h3>
+	<form>
+		UserName<input type="text" name="username" id="username" placeholder="username" required/><br><br>
+		password &nbsp;<input type="password" name="password" id="password" placeholder="password" required/><br><br>
+		Confirm &nbsp;&nbsp;<input type="password" name="confirm" id="confirm" placeholder="confirm password" required/><br>
+		password<br><br>		
+		<input type="button" value="Admin Access" onclick="admin()"/>
+	</form>
+	<div id="msg"></div>
+	<script>
+	function admin()
+	{
+		var xhr = new XMLHttpRequest();
+		var shopId = localStorage.getItem("shopId");
+		var fn = document.getElementById('username').value;
+		var fn1 = document.getElementById('password').value;
+		var fn2 = document.getElementById('confirm').value;
+		if((fn1.localeCompare(fn2))==0)
+		{
+			xhr.onreadystatechange = function(){
+				if(this.readyState==4)
+				{
+					window.location = "index.html"
+				}
+			};
+			xhr.open("POST","/ShopManagement/adminsignup?username="+fn+"&password="+fn1+"&shopId="+shopId,true);
+			xhr.send();
+		}
+		else
+		{
+			document.getElementById("msg").innerHTML = "Please correct the confirm password";	
+		}
+	}
+	</script>
+</body>
+</html>

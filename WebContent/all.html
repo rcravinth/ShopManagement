@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<title>STOCK</title>
+</head>
+<style>
+	#button{
+     line-height: 20px;
+     width: 80px;
+     font-size: 11pt;
+     font-family: tahoma;
+     margin-top: 5px;
+     margin-right: 70px;
+     position:absolute;
+     top:0;
+     right:0;}
+</style>
+<body>
+	<button type="button" id="button" onclick ="exit()">Exit</button><br><br>
+	<script>
+			function exit()
+			{
+				window.location.replace("admin.html");
+			}
+	</script>
+</body>
+<style>
+	table,th,td {
+  	border : 1px solid black;
+  	border-collapse: collapse;
+	}
+	th,td {
+  	padding: 5px;
+	}
+</style>
+<body>
+	<input type="button" value="Purchase" onclick="purchase()"/>&nbsp;&nbsp;
+	<input type="button" value="Sale" onclick="sale()"/>
+	<table id="msg"></table>
+	<div id="msg1"></div>
+	<script>
+	function purchase()
+	{
+		var xhr = new XMLHttpRequest();
+		var orgaId = localStorage.getItem("Orga_Id");
+		xhr.onreadystatechange = function(){
+			if(this.readyState==4)
+			{
+				document.getElementById("msg1").innerHTML = "";
+				document.getElementById("msg").innerHTML = "";
+				all(this);
+			}
+		};
+		xhr.open("GET","/ShopManagement/shop/user/allpurchase/"+orgaId,true);
+		xhr.send();
+	}
+	function all(xml)
+	{
+		var i;
+		var xmlDoc = xml.responseXML;
+		var x = xmlDoc.getElementsByTagName("item");
+		var table = "<tr><th>Date</th><th>Item Name</th><th>Vendor Name</th><th>Quantity</th><th>Amount</th></tr>";
+		for(i=0; i<x.length;i++)
+		{
+			table += "<tr><td>"+x[i].getElementsByTagName("date")[0].childNodes[0].nodeValue+
+					"</td><td>"+x[i].getElementsByTagName("itemName")[0].childNodes[0].nodeValue+
+					"</td><td>"+x[i].getElementsByTagName("vendorName")[0].childNodes[0].nodeValue+
+					"</td><td>"+x[i].getElementsByTagName("quantity")[0].childNodes[0].nodeValue+
+					"</td><td>"+x[i].getElementsByTagName("amount")[0].childNodes[0].nodeValue+
+					"</td></tr>";
+		}
+			if(x.length==0)
+		{
+			document.getElementById("msg1").innerHTML = "No item bought in between these days";
+		}
+		else
+		{
+			document.getElementById("msg").innerHTML = table;
+		}
+	}
+	function sale()
+	{
+		var xhr = new XMLHttpRequest();
+		var orgaId = localStorage.getItem("Orga_Id");
+		xhr.onreadystatechange = function(){
+			if(this.readyState==4)
+			{
+				document.getElementById("msg").innerHTML = "";
+				document.getElementById("msg1").innerHTML = " ";
+				all_sale(this);
+			}
+		};
+		xhr.open("GET","/ShopManagement/shop/user/allsale/"+orgaId,true);
+		xhr.send();
+	}
+	function all_sale(xml)
+	{
+		var i;
+		var xmlDoc = xml.responseXML;
+		var x = xmlDoc.getElementsByTagName("item");
+		var table = "<tr><th>Date</th><th>Item Name</th><th>Vendor Name</th><th>Quantity</th><th>Amount</th></tr>";
+		for(i=0; i<x.length;i++)
+		{
+			table += "<tr><td>"+x[i].getElementsByTagName("date")[0].childNodes[0].nodeValue+
+					"</td><td>"+x[i].getElementsByTagName("itemName")[0].childNodes[0].nodeValue+
+					"</td><td>"+x[i].getElementsByTagName("vendorName")[0].childNodes[0].nodeValue+
+					"</td><td>"+x[i].getElementsByTagName("quantity")[0].childNodes[0].nodeValue+
+					"</td><td>"+x[i].getElementsByTagName("amount")[0].childNodes[0].nodeValue+
+					"</td></tr>";
+		}
+			if(x.length==0)
+		{
+			document.getElementById("msg1").innerHTML = "No item sale in between these days";
+		}
+		else
+		{
+			document.getElementById("msg").innerHTML = table;
+		}
+	}
+	</script>
+</body>
+</html>

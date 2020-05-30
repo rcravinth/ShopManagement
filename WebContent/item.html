@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<title>STOCK</title>
+</head>
+<style>
+	#button{
+     line-height: 20px;
+     width: 80px;
+     font-size: 11pt;
+     font-family: tahoma;
+     margin-top: 5px;
+     margin-right: 70px;
+     position:absolute;
+     top:0;
+     right:0;}
+</style>
+<style>
+	 #submit{
+     line-height: 20px;
+     width: 80px;
+     font-size: 11pt;
+     font-family: tahoma;
+     margin-top: 5px;
+     margin-right: 70px;
+     position:absolute;
+     top:50;
+     right:0;}
+</style>
+<body>
+	<button type="button" id="button" onclick ="signout()">Sign Out</button><br><br>
+	<script>
+			function signout()
+			{
+				localStorage.removeItem("userId");
+				window.location.replace("index.html");
+			}
+	</script>
+	<button type="button" id="submit" onclick ="admin()">Admin</button>
+	<script>
+			function admin()
+			{
+				window.location = "adminsignin.html";
+			}
+	</script>
+</body>
+<style>
+	table,th,td {
+  	border : 1px solid black;
+  	border-collapse: collapse;
+	}
+	th,td {
+  	padding: 5px;
+	}
+</style>
+
+<body>
+	
+	<div id = "Item">
+		<form>
+			ItemName &nbsp; 
+			<input type = "text" name = "itemname" onfocus="this.value=''" id ="itemName" required /><br/><br/>
+			<button type="button" onclick="itemList()">Show Item List</button>&nbsp;&nbsp;&nbsp;
+			<input type = "button" value = "AddItem" onclick = "addItem()"/><br><br>
+		</form>
+		<div id="msg"></div>
+		<table id="show"></table>
+		<script>
+			function addItem()
+			{
+				var xhr = new XMLHttpRequest();
+				var OrgaId = localStorage.getItem("Orga_Id");
+				fn = document.getElementById('itemName').value;
+				xhr.onreadystatechange = function(){
+					if(this.readyState==4)
+					{
+						document.getElementById("msg2").innerHTML = "";
+						document.getElementById("msg1").innerHTML = "";
+						item(this);
+					}
+				};
+				xhr.open("POST","/ShopManagement/shop/user/additem/"+fn+"/"+OrgaId,true);
+				xhr.send();
+			}
+			function item(req)
+			{
+				var i;
+				var xmlDoc = req.responseXML;
+				var x = xmlDoc.getElementsByTagName("returnResponse");
+				for(i=0; i<x.length;i++)
+				{
+					var res= x[i].getElementsByTagName("res")[0].childNodes[0].nodeValue;
+				}
+				if(res=="already")
+				{
+					document.getElementById("msg").innerHTML = "Already register this item";
+				}
+				else if(res=="success")
+				{
+					document.getElementById("msg").innerHTML = "Add item Successfully";
+				}
+			}
+			function itemList()
+			{
+				var xhr = new XMLHttpRequest();
+				var OrgaId = localStorage.getItem("Orga_Id");
+				xhr.onreadystatechange = function(){
+					if(this.readyState==4)
+					{
+						document.getElementById("msg2").innerHTML = "";
+						document.getElementById("msg1").innerHTML = "";
+						list(this);
+					}
+				};
+				xhr.open("GET","/ShopManagement/shop/user/itemlist/"+OrgaId,true);
+				xhr.send();
+			}
+			function list(req)
+			{
+				var i;
+				var xmlDoc = req.responseXML;
+				var table = "<tr><th>Item Name</th></tr>";
+				var x = xmlDoc.getElementsByTagName("item");
+				for(i=0; i<x.length;i++)
+				{
+					table += "<tr><td>"+
+							x[i].getElementsByTagName("itemName")[0].childNodes[0].nodeValue+
+							"</td></tr>";
+				}
+				if(x.length==0)
+				{
+					document.getElementById("msg").innerHTML = "Please add item";
+				}
+				else
+				{
+					document.getElementById("msg").innerHTML = " ";
+					document.getElementById("show").innerHTML = table;
+				}
+			}
+		</script>
+	</div>
+	
+	<div>
+	<h3>Purchase</h3>
+	<table>
+		<tr>
+			<td>Date</td>
+			<td>Item Name</td>
+			<td>Vendor Name</td>
+			<td>Quantity</td>
+			<td>Amount</td>
+		</tr>
+		<tr>
+			<td>
+				<input type="text" name="date" id="date" onfocus="this.value=''" placeholder="YYYY-MM-DD" required />
+			</td>
+			<td>
+				<input type="text" name="itemname" id="itemname" onfocus="this.value=''" placeholder="item name" required />
+			</td>
+			<td>
+				<input type="text" name="vendorname" id="vendorname" onfocus="this.value=''" placeholder="vendor name" required />
+			</td>
+			<td>
+				<input type="number" name="quantity" id="quantity" onfocus="this.value=''" placeholder="quantity" required />
+			</td>
+			<td>
+				<input type="number" name="amount" id="amount" onfocus="this.value=''" placeholder="amount" required />
+			</td>
+		</tr>
+	</table><br>
+	<input type="button" value="Update" onclick="purchase()"/>&nbsp;&nbsp;
+	<div id="msg1"></div>
+	<script>
+			function purchase()
+			{
+				var xhr = new XMLHttpRequest();
+				var orgaId = localStorage.getItem("Orga_Id");
+				var fn = document.getElementById('date').value;
+				var fn1 = document.getElementById('itemname').value;
+				var fn2 = document.getElementById('vendorname').value;
+				var fn3 = document.getElementById('quantity').value;
+				var fn4 = document.getElementById('amount').value;
+				xhr.onreadystatechange = function(){
+					if(this.readyState==4)
+					{
+						document.getElementById("msg").innerHTML = "";
+						document.getElementById("msg2").innerHTML = "";
+						update(this);
+					}
+				};
+				xhr.open("GET","/ShopManagement/shop/user/purchase/"+fn+"/"+fn1+"/"+fn2+"/"+fn3+"/"+fn4+"/"+orgaId,true);
+				xhr.send();
+			}
+			function update(xml)
+			{
+				var i;
+				var xmlDoc = xml.responseXML;
+				var x = xmlDoc.getElementsByTagName("returnResponse");
+				for(i=0; i<x.length;i++)
+				{
+					res = x[i].getElementsByTagName("res")[0].childNodes[0].nodeValue;
+				}
+				if(res=="success")
+				{
+					document.getElementById("msg1").innerHTML = "Successfully updated";
+				}
+				else if(res=="item")
+				{
+					document.getElementById("msg1").innerHTML = "Please register this item & Item is not exist in the vendor";
+				}
+				else if(res=="vendor")
+				{
+					document.getElementById("msg1").innerHTML = "Please register this vendor";
+				}
+			}
+	</script>
+	</div>
+	<div>
+	<h3>Sale</h3>
+	<table>
+		<tr>
+			<td>Date</td>
+			<td>Item Name</td>
+			<td>Customer</td>
+			<td>Quantity</td>
+			<td>Amount</td>
+		</tr>
+		<tr>
+			<td>
+				<input type="text" name="date1" id="date1" onfocus="this.value=''" placeholder="YYYY-MM-DD" required />
+			</td>
+			<td>
+				<input type="text" name="itemname1" id="itemname1" onfocus="this.value=''" placeholder="item name" required />
+			</td>
+			<td>
+				<input type="text" name="customer" id="customer" onfocus="this.value=''" placeholder="customer" required />
+			</td>
+			<td>
+				<input type="number" name="quantity1" id="quantity1" onfocus="this.value=''" placeholder="quantity" required />
+			</td>
+			<td>
+				<input type="number" name="amount1" id="amount1" onfocus="this.value=''" placeholder="amount" required />
+			</td>
+		</tr>
+	</table><br>
+	<input type="button" value="Update" onclick="sale()"/>&nbsp;&nbsp;
+	<div id="msg2"></div>
+	<script>
+			function sale()
+			{
+				var xhr = new XMLHttpRequest();
+				var orgaId = localStorage.getItem("Orga_Id");
+				var fn = document.getElementById('date1').value;
+				var fn1 = document.getElementById('itemname1').value;
+				var fn2 = document.getElementById('customer').value;
+				var fn3 = document.getElementById('quantity1').value;
+				var fn4 = document.getElementById('amount1').value;
+				xhr.onreadystatechange = function(){
+					if(this.readyState==4)
+					{
+						document.getElementById("msg").innerHTML = "";
+						document.getElementById("msg1").innerHTML = "";
+						updatesale(this);
+					}
+				};
+				xhr.open("GET","/ShopManagement/shop/user/sale/"+fn+"/"+fn1+"/"+fn2+"/"+fn3+"/"+fn4+"/"+orgaId,true);
+				xhr.send();
+			}
+			function updatesale(xml)
+			{
+				var i;
+				var xmlDoc = xml.responseXML;
+				var x = xmlDoc.getElementsByTagName("returnResponse");
+				for(i=0; i<x.length;i++)
+				{
+					res = x[i].getElementsByTagName("res")[0].childNodes[0].nodeValue;
+				}
+				if(res=="success")
+				{
+					document.getElementById("msg2").innerHTML = "Successfully updated";
+				}
+				else if(res=="fail")
+				{
+					document.getElementById("msg2").innerHTML ="Please register this item";
+				}
+			}
+	</script>
+	</div>
+</html>

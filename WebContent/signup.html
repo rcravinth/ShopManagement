@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<title>STOCK</title>
+</head>
+<body>
+	<form>
+		Shop Name &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+		<input type="text" name="shopname" id="shopname" onfocus="this.value=''" placeholder="shop name" required/><br><br>
+		Owner &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+		<input type="text" name="owner" id="owner" onfocus="this.value=''" placeholder="owner" required/><br><br>
+		Product &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+		<input type="text" name="product" id="product" onfocus="this.value=''" placeholder="product" required/><br><br>
+		Pancard No &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+		<input type="text" name="pancard" id="pancard" onfocus="this.value=''" placeholder="pancard" required/><br><br>
+		Mobile No &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+		<input type="tel" name="mobno" id="mobno" onfocus="this.value=''" pattern="[0-9]{10}" placeholder="mobile no" required/><br><br>
+		Email Id &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+		<input type="text" name="eamil" id="eamil" onfocus="this.value=''" pattern="^(.+)@(.+)[.](.+)$" placeholder="email id" required/><br><br>
+		Place &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+		<input type="text" name="place" id="place" onfocus="this.value=''" placeholder="place" required/><br><br>
+		Password &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+		<input type="password" name="password" id="password" onfocus="this.value=''" placeholder = "password" required/><br/><br>
+		Confirm Password
+		<input type="password" name="confirm" id="confirm" onfocus="this.value=''" placeholder = "password" required/><br/><br/>
+		
+		<input type = "button" value = "Back" onclick = "history.back()"/>
+		<input type ="button" value = "SignUp" onclick = "signup()"/>
+		<div id="msg"></div>
+	</form>
+	<script>
+		function signup()
+		{
+			var xhr = new XMLHttpRequest();
+			var fn = document.getElementById('shopname').value;
+			var fn1 = document.getElementById('owner').value;
+			var fn2 = document.getElementById('product').value;
+			var fn3 = document.getElementById('pancard').value;
+			var fn4 = document.getElementById('mobno').value;
+			var fn5 = document.getElementById('eamil').value;
+			var fn6 = document.getElementById('place').value;
+			var fn7 = document.getElementById('password').value;
+			var fn8 = document.getElementById('confirm').value;
+			if((fn7.localeCompare(fn8))==0)
+			{
+				xhr.onreadystatechange = function(){
+					if(this.readyState==4)
+					{
+						signupStatus(this);
+					}
+				};
+				xhr.open("POST","/ShopManagement/shop/user/signup/"+fn+"/"+fn1+"/"+fn2+"/"+fn3+"/"+fn4+"/"+fn5+"/"+fn6+"/"+fn7,true);
+				xhr.send();
+			}
+			else
+			{
+				document.getElementById("msg").innerHTML = "Please correct the confirm password";	
+			}
+		}
+		function signupStatus(stat)
+		{
+			var i;
+			var Doc = stat.responseXML;
+			var table = "";
+			var x = Doc.getElementsByTagName("returnResponse");
+			for(i=0; i<x.length;i++)
+			{
+				table = x[i].getElementsByTagName("res")[0].childNodes[0].nodeValue;
+				shopid = x[i].getElementsByTagName("userId")[0].childNodes[0].nodeValue;
+			}
+			if(table=="Success")
+			{
+				localStorage.setItem("shopId",shopid);
+				document.getElementById("msg").innerHTML = "Created account Sccessfully";
+				window.location = "adminaccess.html";
+			}
+			else if(table=="Already")
+			{
+				window.location = "alreadyregister.html";
+			}
+			else if(table=="Email")
+			{
+				document.getElementById("msg").innerHTML = "You already register this Email: Try another Email";
+			}
+		}
+	</script>
+</body>
+</html>

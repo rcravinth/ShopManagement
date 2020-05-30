@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<title>STOCK</title>
+</head>
+<body>
+	<h3>SIGN IN</h3>
+	<form>
+	Mobile No  
+	<input type = "tel" name = "mobno" id="mobno" onfocus="this.value=''" pattern="[0-9]{10}" placeholder = "mobilenumber" required/><br/><br/>
+	
+	Password &nbsp; 
+	<input type = "password" name = "password" id="password" onfocus="this.value=''" placeholder = "password" required/><br/><br/>
+	
+	<input type = "button" value = "Sigin" onclick="signin()"/>&nbsp;&nbsp;&nbsp;
+	<a href = "signup.html">Create an Account?</a>
+	<div id="Error"></div>
+	</form>
+	<script>
+			function signin()
+			{
+				var xhr = new XMLHttpRequest();
+				fn = document.getElementById('mobno').value;
+				fn1 = document.getElementById('password').value;
+				xhr.onreadystatechange = function(){
+					if(this.readyState==4)
+					{
+						signinStatus(this);
+					}
+				};
+				xhr.open("POST","/ShopManagement/shop/user/signin/"+fn+"/"+fn1,true);
+				xhr.send();
+			}
+			function signinStatus(stat)
+			{
+				var i;
+				var Doc = stat.responseXML;
+				var x = Doc.getElementsByTagName("returnResponse");
+				for(i=0; i<x.length;i++)
+				{
+					res = x[i].getElementsByTagName("res")[0].childNodes[0].nodeValue;
+					OrgaId = x[i].getElementsByTagName("userId")[0].childNodes[0].nodeValue;
+				}
+				if(res=="success")
+				{
+					localStorage.setItem("Orga_Id",OrgaId);
+					window.location = "item.html";
+				}
+				else if(res=="wrong")
+				{
+					document.getElementById("Error").innerHTML = "Please enter the valid MobieNumber or Password";
+				}
+			}
+	</script>	 
+</body>
+</html>

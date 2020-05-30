@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<title>STOCK</title>
+</head>
+<style>
+	#button{
+     line-height: 20px;
+     width: 80px;
+     font-size: 11pt;
+     font-family: tahoma;
+     margin-top: 5px;
+     margin-right: 70px;
+     position:absolute;
+     top:0;
+     right:0;}
+</style>
+<body>
+	<button type="button" id="button" onclick ="exit()">Exit</button><br><br>
+	<script>
+			function exit()
+			{
+				window.location.replace("item.html");
+			}
+	</script>
+</body>
+<style>
+	#submit{
+     line-height: 20px;
+     width: 80px;
+     font-size: 11pt;
+     font-family: tahoma;
+     margin-top: 5px;
+     margin-right: 70px;
+     position:absolute;
+     top:10;
+     right:0;}
+</style>
+<body>
+	<button type="button" id="submit" onclick ="ven()">Vendor</button>
+	<script>
+			function ven()
+			{
+				window.location.replace("vendor.html");
+			}
+	</script>
+</body>
+<style>
+	table,th,td {
+  	border : 1px solid black;
+  	border-collapse: collapse;
+	}
+	th,td {
+  	padding: 5px;
+	}
+</style>
+<body>
+	<div id = "Item">
+		<form>
+			ItemName &nbsp; 
+			<input type = "text" name = "itemname" onfocus="this.value=''" id ="itemName" required /><br/><br/>
+			<button type="button" onclick="itemList()">Show Item List</button>&nbsp;&nbsp;&nbsp;
+			<input type = "button" value = "AddItem" onclick = "addItem()"/><br><br>
+		</form>
+		<div id="msg"></div>
+		<table id="show"></table>
+		<script>
+			function addItem()
+			{
+				var xhr = new XMLHttpRequest();
+				var OrgaId = localStorage.getItem("Orga_Id");
+				fn = document.getElementById('itemName').value;
+				xhr.onreadystatechange = function(){
+					if(this.readyState==4)
+					{
+						item(this);
+					}
+				};
+				xhr.open("POST","/ShopManagement/shop/user/additem/"+fn+"/"+OrgaId,true);
+				xhr.send();
+			}
+			function item(req)
+			{
+				var i;
+				var xmlDoc = req.responseXML;
+				var x = xmlDoc.getElementsByTagName("returnResponse");
+				for(i=0; i<x.length;i++)
+				{
+					var res= x[i].getElementsByTagName("res")[0].childNodes[0].nodeValue;
+				}
+				if(res=="already")
+				{
+					document.getElementById("msg").innerHTML = "Already register this item";
+				}
+				else if(res=="success")
+				{
+					document.getElementById("msg").innerHTML = "Add item Successfully";
+				}
+			}
+			function itemList()
+			{
+				var xhr = new XMLHttpRequest();
+				var OrgaId = localStorage.getItem("Orga_Id");
+				xhr.onreadystatechange = function(){
+					if(this.readyState==4)
+					{
+						document.getElementById("msg2").innerHTML = "";
+						document.getElementById("msg1").innerHTML = "";
+						list(this);
+					}
+				};
+				xhr.open("GET","/ShopManagement/shop/user/itemlist/"+OrgaId,true);
+				xhr.send();
+			}
+			function list(req)
+			{
+				var i;
+				var xmlDoc = req.responseXML;
+				var table = "<tr><th>Item Name</th></tr>";
+				var x = xmlDoc.getElementsByTagName("item");
+				for(i=0; i<x.length;i++)
+				{
+					table += "<tr><td>"+
+							x[i].getElementsByTagName("itemName")[0].childNodes[0].nodeValue+
+							"</td></tr>";
+				}
+				if(x.length==0)
+				{
+					document.getElementById("msg").innerHTML = "Please add item";
+				}
+				else
+				{
+					document.getElementById("msg").innerHTML = " ";
+					document.getElementById("show").innerHTML = table;
+				}
+			}
+	</script>
+	</div>
+	<div>
+	<h3>Item Detail</h3>
+	<table>
+		<tr>
+			<td>Item Name</td>
+			<td>From</td>
+			<td>To</td>
+		</tr>
+		<tr>
+			<td>
+				<input type="text" name="itemname" id="itemname" onfocus="this.value=''" placeholder="item name" required />
+			</td>
+			<td>
+				<input type="text" name="from" id="from" onfocus="this.value=''" placeholder="yyyy-mm-dd" required />
+			</td>
+			<td>
+				<input type="text" name="to" id="to" onfocus="this.value=''" placeholder="yyyy-mm-dd" required />
+			</td>
+		</tr>
+	</table><br>
+	<input type="button" value="Show" onclick="itemdetail()"/>&nbsp;&nbsp;
+	<table id="msg1"></table>
+	<script>
+			function itemdetail()
+			{
+				var xhr = new XMLHttpRequest();
+				var orgaId = localStorage.getItem("Orga_Id");
+				var fn = document.getElementById('itemname').value;
+				var fn1 = document.getElementById('from').value;
+				var fn2 = document.getElementById('to').value;
+				xhr.onreadystatechange = function(){
+					if(this.readyState==4)
+					{
+						document.getElementById("msg").innerHTML = " ";
+						update(this);
+					}
+				};
+				xhr.open("GET","/ShopManagement/shop/user/itemdetail/"+fn+"/"+fn1+"/"+fn2+"/"+orgaId,true);
+				xhr.send();
+			}
+			function update(xml)
+			{
+				var i;
+				var xmlDoc = xml.responseXML;
+				var x = xmlDoc.getElementsByTagName("item");
+				var table = "<tr><td>     </td><th>Quantity</th><th>Amount</th></tr>";
+				
+					table += "<tr><th>Purchase</th><td>"+x[0].getElementsByTagName("quantity")[0].childNodes[0].nodeValue+
+					"</td><td>"+x[0].getElementsByTagName("amount")[0].childNodes[0].nodeValue+"</td></tr>"+
+					"<tr><th>Sale</th><td>"+x[1].getElementsByTagName("quantity")[0].childNodes[0].nodeValue+
+					"</td><td>"+x[1].getElementsByTagName("amount")[0].childNodes[0].nodeValue+"</td></tr>"
+				
+					if(x.length==0)
+				{
+					document.getElementById("msg1").innerHTML = "No item transaction in between these days";
+				}
+				else
+				{
+					document.getElementById("msg1").innerHTML = table;
+				}
+			}
+	</script>
+	</div>
+	<div>
+	<h3>Status Of Profit</h3>
+	<table>
+		<tr>
+			<td>From</td>
+			<td>To</td>
+		</tr>
+		<tr>
+			<td>
+				<input type="text" name="from" id="from1" onfocus="this.value=''" placeholder="yyyy-mm-dd" required />
+			</td>
+			<td>
+				<input type="text" name="to" id="to1" onfocus="this.value=''" placeholder="yyyy-mm-dd" required />
+			</td>
+		</tr>
+	</table><br>
+	<input type="button" value="Show" onclick="status()"/>&nbsp;&nbsp;
+	<table id="msg2"></table>
+	<script>
+	function status()
+	{
+		var xhr = new XMLHttpRequest();
+		var orgaId = localStorage.getItem("Orga_Id");
+		var fn = document.getElementById('from1').value;
+		var fn1 = document.getElementById('to1').value;
+		xhr.onreadystatechange = function(){
+			if(this.readyState==4)
+			{
+				document.getElementById("msg").innerHTML = " ";
+				profit(this);
+			}
+		};
+		xhr.open("GET","/ShopManagement/shop/user/status/"+fn+"/"+fn1+"/"+orgaId,true);
+		xhr.send();
+	}
+	function profit(xml)
+	{
+		var i;
+		var xmlDoc = xml.responseXML;
+		var x = xmlDoc.getElementsByTagName("item");
+		var table = "<tr><th>Purchase</th><th>Sale</th><th>Amount</th><th>Status</th></tr>";
+		for(i=0; i<x.length;i++)
+		{
+			table += "<tr><td>"+x[i].getElementsByTagName("purchase")[0].childNodes[0].nodeValue+
+					"</td><td>"+x[i].getElementsByTagName("sale")[0].childNodes[0].nodeValue+
+					"</td><td>"+x[i].getElementsByTagName("amount")[0].childNodes[0].nodeValue+
+					"</td><td>"+x[i].getElementsByTagName("status")[0].childNodes[0].nodeValue+
+					"</td></tr>";
+		}
+			if(x.length==0)
+		{
+			document.getElementById("msg2").innerHTML = "No Data";
+		}
+		else
+		{
+			document.getElementById("msg2").innerHTML = table;
+		}
+	}
+	</script>
+	</div><br>
+	<div>
+	<input type="button" value="Current Stock" onclick="stock()"/>
+	<table id="msg3"></table>
+	<script>
+	function stock()
+	{
+		var xhr = new XMLHttpRequest();
+		var orgaId = localStorage.getItem("Orga_Id");
+		
+		xhr.onreadystatechange = function(){
+			if(this.readyState==4)
+			{
+				document.getElementById("msg").innerHTML = "";
+				current(this);
+			}
+		};
+		xhr.open("GET","/ShopManagement/shop/user/stock/"+orgaId,true);
+		xhr.send();
+	}
+	function current(xml)
+	{
+		var i;
+		var xmlDoc = xml.responseXML;
+		var x = xmlDoc.getElementsByTagName("item");
+		var table = "<tr><th>Item Name</th><th>Purchase</th><th>Sale</th><th>Stock</th></tr>";
+		for(i=0; i<x.length;i++)
+		{
+			table += "<tr><td>"+x[i].getElementsByTagName("itemName")[0].childNodes[0].nodeValue+
+					"</td><td>"+x[i].getElementsByTagName("quantity")[0].childNodes[0].nodeValue+
+					"</td><td>"+x[i].getElementsByTagName("amount")[0].childNodes[0].nodeValue+
+					"</td><td>"+x[i].getElementsByTagName("stock")[0].childNodes[0].nodeValue+
+					"</td></tr>";
+		}
+			if(x.length==0)
+		{
+			document.getElementById("msg3").innerHTML = "No Data";
+		}
+		else
+		{
+			document.getElementById("msg3").innerHTML = table;
+		}
+	}
+	</script>
+	</div>
+	<br>
+	<form action="all.html" method="get">
+		<input type="submit" value="Show All"/>
+	</form>
+</body>
+</html>

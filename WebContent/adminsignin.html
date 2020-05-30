@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<title>STOCK</title>
+</head>
+<body>
+	<h3>ADMIN SIGN IN</h3>
+	<form>
+	Username  
+	<input type = "text" name = "username" id="username" onfocus="this.value=''" placeholder = "username" required/><br/><br/>
+	
+	Password
+	<input type = "password" name = "password" id="password" onfocus="this.value=''" placeholder = "password" required/><br/><br/>
+	
+	<input type = "button" value = "Back" onclick = "history.back()"/>
+	<input type ="button" value = "SignIn" onclick = "signin()"/>
+	<div id="msg"></div>
+	</form>
+	<script>
+			function signin()
+			{
+				var xhr = new XMLHttpRequest();
+				var OrgaId = localStorage.getItem("Orga_Id");
+				fn = document.getElementById('username').value;
+				fn1 = document.getElementById('password').value;
+				xhr.onreadystatechange = function(){
+					if(this.readyState==4)
+					{
+						signinStatus(this);
+					}
+				};
+				xhr.open("POST","/ShopManagement/shop/user/adminsignin/"+fn+"/"+fn1+"/"+OrgaId,true);
+				xhr.send();
+			}
+			function signinStatus(stat)
+			{
+				var i;
+				var Doc = stat.responseXML;
+				var x = Doc.getElementsByTagName("returnResponse");
+				for(i=0; i<x.length;i++)
+				{
+					res = x[i].getElementsByTagName("res")[0].childNodes[0].nodeValue;
+				}
+				if(res=="success")
+				{
+					window.location = "admin.html";
+				}
+				else if(res=="wrong")
+				{
+					document.getElementById("msg").innerHTML = "Please enter the valid username or Password";
+				}
+			}
+	</script>	 
+</body>
+</html>
